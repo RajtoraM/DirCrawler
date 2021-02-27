@@ -1,11 +1,29 @@
 #!/usr/bin/python
-
 import os
 import configparser
+import platform
 
-path_list = []
-file_list = []
-directory_list = []
+path_list = []                       # list of files and directories, which will be examined by crawler
+file_list = []                       # files found by crawler
+directory_list = []                  # directories found by crawler
+host_system = platform.system()      # Host OS name
+delimiter_slash = "\\"               # slash delimiter in path, default is backslash
+directories_to_be_backed_up = []     # starting directories for crawler
+ignored_files_and_directories = []   # files and directories in this list will be ignored by the program
+
+
+def system_compatibility_check():
+    global delimiter_slash
+
+    if host_system == "Windows":
+        pass
+    elif host_system == "Linux" or host_system == "Darwin":
+        delimiter_slash = "/"
+    else:
+        print(f"\n\nERROR:\t\"{host_system}\" is not supported operation system.\n\n"
+              "\tFor further detail please visit project webpage: https://github.com/RajtoraM/DirCrawler\n"
+              "\tPlease report this error at https://github.com/RajtoraM/DirCrawler/issues")
+        quit()
 
 
 def import_configurations():
@@ -14,7 +32,7 @@ def import_configurations():
 
     Creates lists of:
         - directories which are to be backed up, i.e. starting directories for crawler
-        - directories and files which will be ignored, i.e. skipped by crawler
+        - directories and files which will be ignored (skipped) by crawler
     """
     config = configparser.ConfigParser()
     config.read("config.cfg")
@@ -45,7 +63,7 @@ def crawler(path):
     # converting list elements to paths. Loop back prevention and filtering of ignored files and directories
     for entity in files_and_directories:
         try:
-            entity_path = (path + "\\" + entity)
+            entity_path = (path + delimiter_slash + entity)
             if entity not in path_list and entity_path not in ignored_files_and_directories:
                 new_path_list.append(entity_path)
         except TypeError:
@@ -59,6 +77,8 @@ def crawler(path):
         except NotADirectoryError:
             file_list.append(directory)
 
+
+system_compatibility_check()
 
 import_configurations()
 
