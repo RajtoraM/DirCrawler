@@ -54,7 +54,7 @@ def crawler(path):
     """
     Crawls through directories and creates lists of paths, files and directories.
 
-    :argument path: starting directory for crawler
+    :argument path: starting crawled_path for crawler
     :type path: str
     """
     files_and_directories = os.listdir(path)
@@ -69,21 +69,21 @@ def crawler(path):
         except TypeError:
             pass
     # recursive crawling through found directories
-    for directory in new_path_list:
-        path_list.append(directory)
+    for crawled_path in new_path_list:
+        path_list.append(crawled_path)
         try:
-            crawler(directory)
-            directory_list.append(directory)
+            crawler(crawled_path)
+            directory_list.append(crawled_path)
         except NotADirectoryError:
-            file_list.append(directory)
+            file_list.append(crawled_path)
 
 
 system_compatibility_check()
 
 import_configurations()
 
-for address in directories_to_be_backed_up:
-    crawler(address)
+for directory in directories_to_be_backed_up:
+    crawler(directory)
 
 
 print("\n\n")
