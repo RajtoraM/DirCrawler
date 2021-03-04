@@ -4,7 +4,9 @@ from datetime import datetime as dt
 import hashlib
 import host_info
 
+
 crawlerDB = "Crawler_DB-test.db"
+
 
 def db_init():
     """Verifies if there is database for crawler. If there is none, new database with appropriate tables is created"""
@@ -43,12 +45,25 @@ def new_db_entry(crawled_path):
     db = sqlite3.connect(crawlerDB)
     cur = db.cursor()
     properties = new_file_properties(crawled_path)
-    properties["last_backed_up"]= dt.now()
-    cur.execute("INSERT INTO files(file_hash, file_name, path, parent_dir, created, size, file_type, last_backed_up) "
-                "VALUES (:file_hash, :file_name, :path, :parent_dir, :created, :size, :file_type, :last_backed_up)", properties)
+
+    cur.execute('SELECT path FROM files WHERE path=?', (crawled_path,))
+    if cur.fetchone():
+        query =("UPDATE files SET file_hash = :file_hash,"
+                    "file_name = :file_name,"
+                    "parent_dir= :parent_dir,"
+                    "created = :created,"
+                    "size = :size,"
+                    "file_type = :file_type "
+                    "WHERE path = :path")
+    else:
+        query = ("INSERT INTO files (file_hash, file_name, path, parent_dir, created, size, file_type) "
+                      "VALUES (:file_hash, :file_name, :path, :parent_dir, :created, :size, :file_type)")
+
+    cur.execute(query, properties)
 
     db.commit()
     db.close()
+
 
 def update_db_entry(crawled_path):
 
@@ -80,15 +95,16 @@ def new_file_properties(file_path):
 
         size = os.path.getsize(file_path)
         file_type = file_path.rsplit(".")[-1]
-        file_name = file_path.rsplit(".")[-2]
-
+        file_name = f_path.rsplit(delimiter,1)[-1]
+        last_back_up = dt.now()
         properties = {"file_hash": f_hash,
                       "file_name": file_name,
                       "path": f_path,
                       "parent_dir": parent_dir,
                       "created": created,
                       "size": size,
-                      "file_type": file_type}
+                      "file_type": file_type,
+                      "last_back_up": last_back_up}
 
 
         return properties
@@ -112,7 +128,7 @@ def file_hash(file_path):
 
 db_init()
 
-update_db_entry(r"D:\Coding\Local\PycharmProjects\dirCrawler\test.txt")
-# new_db_entry(r"D:\Coding\Local\PycharmProjects\dirCrawler\test.txt")
+# update_db_entry(r"D:\Coding\Local\PycharmProjects\dirCrawler\test.txt")
+new_db_entry(r"D:\Coding\Local\PycharmProjects\dirCrawler\test5.txt")
 
 # print(file_hash("C:\\Users\\Mike\\Downloads\\pycharm-community-2020.2.3.exe"))
