@@ -1,29 +1,17 @@
 #!/usr/bin/python
 import os
 import configparser
-import platform
+import host_info
+# import db_module
+
+global delimiter_slash
+delimiter_slash = "\\"               # slash delimiter in path, default is backslash
 
 path_list = []                       # list of files and directories, which will be examined by crawler
 file_list = []                       # files found by crawler
 directory_list = []                  # directories found by crawler
-host_system = platform.system()      # Host OS name
-delimiter_slash = "\\"               # slash delimiter in path, default is backslash
 directories_to_be_backed_up = []     # starting directories for crawler
 ignored_files_and_directories = []   # files and directories in this list will be ignored by the program
-
-
-def system_compatibility_check():
-    global delimiter_slash
-
-    if host_system == "Windows":
-        pass
-    elif host_system == "Linux" or host_system == "Darwin":
-        delimiter_slash = "/"
-    else:
-        print(f"\n\nERROR:\t\"{host_system}\" is not supported operation system.\n\n"
-              "\tFor further detail please visit project webpage: https://github.com/RajtoraM/DirCrawler\n"
-              "\tPlease report this error at https://github.com/RajtoraM/DirCrawler/issues")
-        quit()
 
 
 def import_configurations():
@@ -78,13 +66,21 @@ def crawler(path):
             file_list.append(crawled_path)
 
 
-system_compatibility_check()
+
+
+
+host_info.system_compatibility_check()
 
 import_configurations()
+# db_module.db_init()
 
 for directory in directories_to_be_backed_up:
     crawler(directory)
 
+
+
+# with open("path_list.txt","c") as list:
+#     list.write(*path_list)
 
 print("\n\n")
 print(*path_list, sep="\n")
